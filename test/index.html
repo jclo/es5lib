@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="">
+    <script src="../_dist/es5lib.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <h1 class="title">???</h1>
+      <ul>
+        <li class="string">???</li>
+        <li class="array">???</li>
+      </ul>
+    </div>
+    <script>
+      window.onload = function() {
+        var es5 = ES5Lib()
+          , s
+          ;
+
+        // Adds the title:
+        el = document.querySelector('.title');
+        el.innerHTML ='Hello!';
+
+        // Insert the text returned:
+        el = document.querySelector('.string');
+        s = es5.string();
+        if (s) el.innerHTML = s;
+
+        el = document.querySelector('.array');
+        s = es5.array();
+        if (s) el.innerHTML = s;
+
+      };
+    </script>
+  </body>
+</html>
