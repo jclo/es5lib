@@ -1,10 +1,10 @@
 {
   "name": "es5lib",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A template for writing large ES5 Javascript libraries",
   "main": "index.js",
   "bin": {
-    "umdlib": "./bin/umdlib.js"
+    "es5lib": "./bin/es5lib.js"
   },
   "scripts": {
     "build": "gulp build",
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jclo/umdlib.git"
+    "url": "https://github.com/jclo/es5lib.git"
   },
   "keywords": [
     "UMD",
@@ -41,9 +41,9 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jclo/umdlib/issues"
+    "url": "https://github.com/jclo/es5lib/issues"
   },
-  "homepage": "https://github.com/jclo/umdlib",
+  "homepage": "https://github.com/jclo/es5lib",
   "dependencies": {
     "nopt": "4.0.1",
     "path": "0.12.7"
@@ -59,7 +59,7 @@
     "eslint-plugin-import": "2.9.0",
     "gulp": "3.9.1",
     "gulp-concat": "2.6.1",
-    "gulp-connect": "5.4.0",
+    "gulp-connect": "5.5.0",
     "gulp-footer": "2.0.1",
     "gulp-header": "2.0.1",
     "gulp-replace": "0.6.1",
