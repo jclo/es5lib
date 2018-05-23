@@ -4,7 +4,7 @@
 
   * Replaced the package node-open by opn,
   * Updated the dependencies,
-  * ...,
+  * Release.
 
 
 ### 0.0.1 (February 28, 2018)
