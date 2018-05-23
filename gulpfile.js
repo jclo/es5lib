@@ -9,7 +9,7 @@
 // -- Node modules
 const gulp        = require('gulp')
     , connect     = require('gulp-connect')
-    , open        = require('open')
+    , open        = require('opn')
     , runSequence = require('run-sequence')
     ;
 
