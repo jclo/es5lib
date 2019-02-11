@@ -1,5 +1,11 @@
 ### HEAD
 
+### 0.1.0 (February 11, 2019)
+
+  * Updated the build to Gulp 4,
+  * ...,
+
+
 ### 0.0.2 (May 23, 2018)
 
   * Replaced the package node-open by opn,

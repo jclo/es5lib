@@ -1,14 +1,4 @@
-# ES5Lib
-
-[![NPM version][npm-image]][npm-url]
-[![Travis CI][travis-image]][travis-url]
-[![Test coverage][coveralls-image]][coveralls-url]
-[![Dependencies status][dependencies-image]][dependencies-url]
-[![Dev Dependencies status][devdependencies-image]][devdependencies-url]
-[![License][license-image]](LICENSE.md)
-<!--- [![node version][node-image]][node-url] -->
-
-[![NPM install][npm-install-image]][npm-install-url]
+# Guide
 
 ES5Lib is a template for writing large ES5 Javascript libraries that run both in Node.js and the browser.
 
@@ -143,29 +133,3 @@ On the browser, pick-up the JS file `lib/es5lib.js` and add it as a script in yo
 ```
 
 Enjoy!
-
-## License
-
-[MIT](LICENSE.md).
-
-<!--- URls -->
-
-[npm-image]: https://img.shields.io/npm/v/es5lib.svg?style=flat-square
-[npm-install-image]: https://nodei.co/npm/es5lib.png?compact=true
-[node-image]: https://img.shields.io/badge/node.js-%3E=_0.10-green.svg?style=flat-square
-[download-image]: https://img.shields.io/npm/dm/es5lib.svg?style=flat-square
-[travis-image]: https://img.shields.io/travis/jclo/es5lib.svg?style=flat-square
-[coveralls-image]: https://img.shields.io/coveralls/jclo/es5lib/master.svg?style=flat-square
-[dependencies-image]: https://david-dm.org/jclo/es5lib/status.svg?theme=shields.io
-[devdependencies-image]: https://david-dm.org/jclo/es5lib/dev-status.svg?theme=shields.io
-[license-image]: https://img.shields.io/npm/l/es5lib.svg?style=flat-square
-
-[npm-url]: https://www.npmjs.com/package/es5lib
-[npm-install-url]: https://nodei.co/npm/es5lib
-[node-url]: http://nodejs.org/download
-[download-url]: https://www.npmjs.com/package/es5lib
-[travis-url]: https://travis-ci.org/jclo/es5lib
-[coveralls-url]: https://coveralls.io/github/jclo/es5lib?branch=master
-[dependencies-url]: https://david-dm.org/jclo/es5lib
-[devdependencies-url]: https://david-dm.org/jclo/es5lib?type=dev
-[license-url]: http://opensource.org/licenses/MIT

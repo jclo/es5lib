@@ -3,5 +3,6 @@ _dist
 .nyc_output
 coverage
 node_modules
+private_repo
 .eslintrc
 .tern-project

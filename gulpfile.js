@@ -1,47 +1,48 @@
-/* *****************************************************************************
- *
- * Note: run-sequence doesn't work with arrow function. Use the old fashion!
- *
- * ************************************************************************** */
 /* eslint-env node */
 /* eslint one-var: 0, semi-style: 0 */
 
+
 // -- Node modules
-const gulp        = require('gulp')
-    , connect     = require('gulp-connect')
-    , open        = require('opn')
-    , runSequence = require('run-sequence')
+const { watch, series } = require('gulp')
+    , connect = require('gulp-connect')
+    , open    = require('opn')
     ;
 
-// -- Local modules
-
-// Include all build files:
-require('require-dir')('./tasks');
-
 // -- Local constants
-const watch = 'src/**/*.js'
+const filesToWatch = 'src/**/*.js'
     ;
 
 // -- Local variables
 
-// -- Gulp Tasks
-gulp.task('build', (callback) => {
-  runSequence('browserify', callback);
-});
+// -- Gulp Private Tasks
+const { browserify } = require('./tasks/makejs')
+    , { watchify }   = require('./tasks/makejs')
+    , makedist       = require('./tasks/makedist')
+    , makeprivate    = require('./tasks/makeprivatepackage')
+    ;
 
-gulp.task('watch', () => {
-  gulp.watch(watch, ['watchify']);
-});
 
-gulp.task('default', (callback) => {
-  runSequence('browserify', 'makedist', callback);
-});
+// -- Gulp watch
+function fwatch() {
+  watch(filesToWatch, series(watchify));
+}
 
-gulp.task('connect', () => {
+// -- Gulp connect
+function server(done) {
   connect.server({
     root: './',
     port: 3000,
     livereload: true,
   });
-  open('http://localhost:3000/');
-});
+  open('http://localhost:3000/test/');
+  done();
+}
+
+
+// -- Gulp Public Tasks
+exports.build = browserify;
+exports.watch = fwatch;
+exports.connect = server;
+exports.makedist = makedist;
+exports.makeprivate = makeprivate;
+exports.default = series(browserify, makedist, makeprivate);

@@ -1,6 +1,6 @@
 {
   "name": "es5lib",
-  "version": "0.0.2",
+  "version": "0.1.0alpha1",
   "description": "A template for writing large ES5 Javascript libraries",
   "main": "index.js",
   "bin": {
@@ -9,14 +9,16 @@
   "scripts": {
     "build": "gulp build",
     "watch": "gulp watch",
-    "makedist": "gulp",
     "app": "gulp connect",
-    "test": "cross-env NODE_ENV=test nyc --reporter=lcov _mocha ./test/main.js",
+    "makedist": "gulp makedist",
+    "makeprivate": "gulp makeprivate && sh tasks/compress.sh ${npm_package_name} ${npm_package_version}",
+    "makelib": "gulp build && gulp makedist && gulp makeprivate && sh tasks/compress.sh ${npm_package_name} ${npm_package_version}",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov mocha ./test/main.js",
     "check-coverage": "nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100",
     "display-coverage": "opener ./coverage/lcov-report/index.html",
-    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "report-coverage": "nyc report --reporter=text-lcov | coveralls",
     "report": "nyc report",
-    "precommit": "npm run makedist && npm run test && npm run check-coverage && npm run report"
+    "doc": "vuepress dev docs"
   },
   "repository": {
     "type": "git",
@@ -46,34 +48,40 @@
   "homepage": "https://github.com/jclo/es5lib",
   "dependencies": {
     "nopt": "4.0.1",
-    "path": "0.12.7"
+    "path": "0.12.7",
+    "vuepress": "0.14.8"
   },
   "devDependencies": {
-    "browserify": "16.2.2",
-    "chai": "4.1.2",
-    "coveralls": "3.0.1",
-    "cross-env": "5.1.6",
+    "browserify": "16.2.3",
+    "chai": "4.2.0",
+    "coveralls": "3.0.2",
+    "cross-env": "5.2.0",
     "del": "3.0.0",
-    "eslint": "4.19.1",
-    "eslint-config-airbnb-base": "12.1.0",
-    "eslint-plugin-import": "2.12.0",
-    "gulp": "3.9.1",
+    "eslint": "5.13.0",
+    "eslint-config-airbnb-base": "13.1.0",
+    "eslint-plugin-import": "2.16.0",
+    "gulp": "4.0.0",
     "gulp-concat": "2.6.1",
-    "gulp-connect": "5.5.0",
-    "gulp-footer": "2.0.1",
-    "gulp-header": "2.0.5",
+    "gulp-connect": "5.7.0",
+    "gulp-footer": "2.0.2",
+    "gulp-header": "2.0.7",
     "gulp-replace": "1.0.0",
     "gulp-sourcemaps": "2.6.4",
-    "gulp-uglify": "3.0.0",
-    "husky": "0.14.3",
+    "gulp-uglify": "3.0.1",
+    "gulp-util": "3.0.8",
+    "husky": "1.3.1",
     "mocha": "5.2.0",
-    "nyc": "11.8.0",
-    "opener": "1.4.3",
-    "opn": "5.3.0",
-    "require-dir": "1.0.0",
-    "run-sequence": "2.2.1",
+    "nyc": "13.2.0",
+    "opener": "1.5.1",
+    "opn": "5.4.0",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "2.0.0",
     "watchify": "3.11.0"
+  },
+  "private": false,
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && npm run makedist && npm run test && npm run check-coverage && npm run report"
+    }
   }
 }

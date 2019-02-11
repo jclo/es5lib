@@ -1,29 +1,37 @@
-/* eslint one-var: 0, prefer-arrow-callback: 0, import/no-extraneous-dependencies: 0,
-  max-len: [1, 130, 0], semi-style: 0 */
+/* eslint  one-var: 0, import/no-extraneous-dependencies: 0, semi-style: 0 */
+
 
 // -- Node modules
-const browserify   = require('browserify')
+const { dest, series } = require('gulp')
+    , browserify   = require('browserify')
     , del          = require('del')
-    , gulp         = require('gulp')
-    , replace      = require('gulp-replace')
     , sourcemaps   = require('gulp-sourcemaps')
     , gutil        = require('gulp-util')
-    , runSequence  = require('run-sequence')
     , buffer       = require('vinyl-buffer')
     , sourcestream = require('vinyl-source-stream')
     , watchify     = require('watchify')
     ;
 
+
 // -- Local modules
 const config = require('./config')
-  ;
+   ;
+
 
 // -- Local constants
-const { lib } = config
-    , { name } = config
-    , { release } = config
-    , { browserify: { app } } = config
-    , { browserify: { debug } } = config
+// const { libdir }  = config
+//     , { name }    = config
+//     , { release } = config
+//     , { browserify: { app } }        = config
+//     , { browserify: { debug } }      = config
+//     , { browserify: { exportname } } = config
+//     ;
+
+const destination  = config.libdir
+    , lib          = config.libname
+    , name         = lib.replace(/\s+/g, '').toLowerCase()
+    , { browserify: { app } }        = config
+    , { browserify: { debug } }      = config
     , { browserify: { exportname } } = config
     ;
 
@@ -33,13 +41,14 @@ const { lib } = config
 
 // -- Gulp Private Tasks
 
-// Remove previous versions:
-gulp.task('removelib', function() {
-  del.sync([lib]);
-});
+// Removes the previous version.
+function clean(done) {
+  del.sync(lib);
+  done();
+}
 
 // Browserify:
-gulp.task('browserify-int', function() {
+function build() {
   // Set up the browserify instance.
   const b = browserify({ entries: app, debug, standalone: exportname });
 
@@ -51,15 +60,13 @@ gulp.task('browserify-int', function() {
     .pipe(buffer())
     // Load map from browserify file.
     .pipe(sourcemaps.init({ loadMaps: true }))
-    // Add transformation tasks to the pipeline here.
-    .pipe(replace('{{lib:version}}', release))
     // Write .map file.
     .pipe(sourcemaps.write('./'))
-    .pipe(gulp.dest(lib));
-});
+    .pipe(dest(destination));
+}
 
 // Watchify:
-gulp.task('watchify-int', function() {
+function watch(done) {
   const b = browserify({
     entries: app,
     debug,
@@ -69,7 +76,7 @@ gulp.task('watchify-int', function() {
     plugin: [watchify],
   });
 
-  function build() {
+  function rebuild() {
     b.bundle()
       // Log errors if they happen.
       .on('error', gutil.log)
@@ -78,29 +85,21 @@ gulp.task('watchify-int', function() {
       .pipe(buffer())
       // Load map from browserify file.
       .pipe(sourcemaps.init({ loadMaps: true }))
-      // Add transformation tasks to the pipeline here.
-      .pipe(replace('{{lib:version}}', release))
       // Write .map file.
       .pipe(sourcemaps.write('./'))
       // Write stream to destination path.
-      .pipe(gulp.dest(lib));
+      .pipe(dest(destination));
   }
 
   // On any update, run the bundler and output build logs to the terminal.
   b.on('update', build);
   b.on('log', gutil.log);
 
-  return build();
-});
+  rebuild();
+  done();
+}
 
 
-// -- Gulp Public Tasks
-
-// Build ES5 Library:
-gulp.task('browserify', function(callback) {
-  runSequence('removelib', 'browserify-int', callback);
-});
-
-gulp.task('watchify', function(callback) {
-  runSequence('watchify-int', callback);
-});
+// -- Gulp Public Task(s)
+exports.watchify = series(watch);
+exports.browserify = series(clean, build);

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /* *****************************************************************************
- * es5lib.js creates the skeleton for writing large UMD Javascript libraries.
+ * es5lib.js creates the skeleton for writing a Javascript library.
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2018 jclo <jclo@mobilabs.fr> (http://www.mobilabs.fr)
+ * Copyright (c) 2019 jclo <jclo@mobilabs.fr> (http://www.mobilabs.fr)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  * ************************************************************************** */
-/* eslint-env node */
-/* eslint one-var: 0, semi-style: 0 */
+/* eslint one-var: 0,semi-style: 0 */
+
 
 // -- Node modules
 const fs           = require('fs')
@@ -35,12 +35,14 @@ const fs           = require('fs')
     ;
 
 // -- Global variables
-const baseapp     = process.cwd()
+const boilerlib   = 'ES5Lib'
+    , baseapp     = process.cwd()
     , baseumdlib  = __dirname.replace('/bin', '')
     , { version } = require('../package.json')
     , src         = 'src'
     , test        = 'test'
     , tasks       = 'tasks'
+    , docs        = 'docs'
     // Command line Options
     , opts = {
       help: [Boolean, false],
@@ -74,7 +76,7 @@ const readme = [
 const license = [
   'The MIT License (MIT)',
   '',
-  'Copyright (c) 2018 John Doe <jdo@johndoe.com> (http://www.johndoe.com)',
+  'Copyright (c) 2019 John Doe <jdo@johndoe.com> (http://www.johndoe.com)',
   '',
   'Permission is hereby granted, free of charge, to any person obtaining a copy',
   'of this software and associated documentation files (the "Software"), to deal',
@@ -146,6 +148,74 @@ function _copyFile(source, dest) {
 }
 
 /**
+ * Copies source file to destination with a filtering.
+ *
+ * @function (arg1, arg2, arg3)
+ * @private
+ * @param {String}    the source path,
+ * @param {String}    the destination path,
+ * @param {String}    the name of the library,
+ * @returns {}        -,
+ */
+function _copyFileAndReplace(source, dest, app) {
+  const re  = new RegExp(boilerlib, 'g')
+      , re2 = new RegExp('{{template:version}}')
+      ;
+  let s
+    ;
+
+  fs.readFile(source, 'utf8', (error, data) => {
+    if (error) { throw error; }
+    s = data.replace(re, app).replace(re2, version);
+    fs.writeFile(dest, s, 'utf8', (err) => {
+      if (err) { throw err; }
+    });
+  });
+}
+
+/**
+ * Recursively copies source to destination.
+ *
+ * @function (arg1, arg2, arg3, arg4, arg5, arg6)
+ * @private
+ * @param {String}    the source folder/file,
+ * @param {String}    the destination folder/file,
+ * @param {String}    the name of the library,
+ * @param {String}    the relative path,
+ * @param {Array}     the files not to copy,
+ * @param {Boolean}   add or not chached files,
+ * @returns {}        -,
+ */
+function _copyRecursiveSync(source, dest, app, destpath, excluFiles, addCachedFiles) {
+  if (fs.statSync(source).isDirectory()) {
+    fs.mkdirSync(dest);
+
+    let files;
+    if (addCachedFiles) {
+      files = fs.readdirSync(source);
+    } else {
+      files = _filter(fs.readdirSync(source));
+    }
+    for (let i = 0; i < files.length; i++) {
+      if (fs.statSync(`${source}/${files[i]}`).isDirectory()) {
+        if (!excluFiles || excluFiles.indexOf(files[i]) === -1) {
+          _copyRecursiveSync(`${source}/${files[i]}`, `${dest}/${files[i]}`, app, destpath, excluFiles, addCachedFiles);
+        }
+      } else {
+        const lopath = destpath ? dest.replace(destpath, '') : dest;
+
+        if (!excluFiles || excluFiles.indexOf(files[i]) === -1) {
+          process.stdout.write(`  ${lopath}/${files[i]}\n`);
+          _copyFileAndReplace(`${source}/${files[i]}`, `${dest}/${files[i]}`, app);
+        }
+      }
+    }
+  } else {
+    _copyFileAndReplace(source, dest, app);
+  }
+}
+
+/**
  * Copies source data to destination file.
  *
  * @function (arg1, arg2)
@@ -170,11 +240,11 @@ function _createFiles(destpath, files) {
 }
 
 /**
- * Removes ES5Lib dependencies to package.json.
+ * Removes UMDLib dependencies to package.json.
  *
  * @function (arg1, arg2, arg3)
  * @private
- * @param {String}    the root path of ES5Lib,
+ * @param {String}    the root path of UMDLib,
  * @param {String}    the root path of UMD library,
  * @param {String}    the name of the UMD library,
  * @returns {}        -,
@@ -192,7 +262,7 @@ function _customizeApp(locbaseumdlib, locbaseapp, locappname) {
     // Fix package.json:
     const obj = JSON.parse(data);
     const pack = {};
-    pack.name = locappname.toLowerCase();
+    pack.name = locappname;
     pack.version = '0.0.0';
     pack.description = `${locappname} ...`;
     pack.main = obj.main;
@@ -209,8 +279,13 @@ function _customizeApp(locbaseumdlib, locbaseapp, locappname) {
     pack.bugs = obj.bugs;
     pack.bugs.url = 'https://github.com/author/libname/issues';
     pack.homepage = 'https://github.com/author/libname';
-    pack.dependencies = {};
+    pack.dependencies = obj.dependencies;
     pack.devDependencies = obj.devDependencies;
+    pack.private = obj.private;
+    pack.husky = obj.husky;
+
+    delete pack.dependencies.nopt;
+    delete pack.dependencies.path;
 
     // Write the updated package.json:
     fs.writeFile(path.join(locbaseapp, npm), JSON.stringify(pack, null, 2), 'utf8', (err) => {
@@ -222,92 +297,6 @@ function _customizeApp(locbaseumdlib, locbaseapp, locappname) {
     });
   });
 }
-
-/**
- * Removes ES5Lib dependencies to the Gulpfile config.js.
- *
- * @function (arg1, arg2, arg3)
- * @private
- * @param {String}    the root path of ES5Lib,
- * @param {String}    the root path of UMD library,
- * @param {String}    the name of the UMD library,
- * @returns {}        -,
- */
-function _customizeGulp(locbaseumdlib, locbaseapp, locappname) {
-  const config = 'config.js'
-    ;
-  // Read config.js file:
-  fs.readFile(path.join(locbaseumdlib, tasks, config), 'utf8', (error, data) => {
-    if (error) {
-      throw error;
-    }
-
-    // Replace 'ES5Lib' by the new name of the lib:
-    const conf = data.replace(/ES5Lib/, locappname);
-    // Save it:
-    fs.writeFile(path.join(locbaseapp, tasks, config), conf, 'utf8', (err) => {
-      if (err) {
-        throw error;
-      }
-      process.stdout.write(`  ${tasks}/${config}\n`);
-    });
-  });
-}
-
-/**
- * Copies one src file.
- *
- * @function (arg1, arg2, arg3, arg4)
- * @private
- * @param {String}    the path of the src files,
- * @param {String}    the path of the destination files,,
- * @param {Array}     the name of src file,
- * @param {String}    the name of the app,
- * @returns {}        -,
- */
-/* eslint-disable no-loop-func */
-function _copySrcFile(source, dest, file, app) {
-  const re  = new RegExp('ES5Lib', 'g')
-      , re2 = new RegExp('{{template:version}}')
-      ;
-  let s
-    ;
-
-  fs.readFile(path.join(source, file), 'utf8', (error, data) => {
-    if (error) { throw error; }
-    s = data.replace(re, app).replace(re2, version);
-    fs.writeFile(path.join(dest, file), s, 'utf8', (err) => {
-      if (err) { throw err; }
-      process.stdout.write(`  ${src}/${file}\n`);
-    });
-  });
-} /* eslint-enable no-loop-func */
-
-/**
- * Copies src files.
- *
- * @function (arg1, arg2, arg3, arg4)
- * @private
- * @param {String}    the path of the src files,
- * @param {String}    the path of the destination files,,
- * @param {Array}     the name of src files,
- * @param {String}    the name of the app,
- * @returns {}        -,
- */
-/* eslint-disable no-loop-func */
-function _copySrcFiles(source, dest, files, app) {
-  let sub;
-
-  for (let i = 0; i < files.length; i++) {
-    if (fs.lstatSync(path.join(source, files[i])).isFile()) {
-      _copySrcFile(source, dest, files[i], app);
-    } else if (fs.lstatSync(path.join(source, files[i])).isDirectory()) {
-      sub = _filter(fs.readdirSync(path.join(source, files[i])));
-      fs.mkdirSync(path.join(dest, files[i]));
-      _copySrcFiles(path.join(source, files[i]), path.join(dest, files[i]), sub, app);
-    }
-  }
-} /* eslint-enable no-loop-func */
 
 /**
  * Displays help message.
@@ -343,20 +332,23 @@ function _help() {
  */
 function _populate(locopts) {
   const app = locopts.name || 'myApp'
+      , authFiles = ['etc', 'package.json', 'package-lock.json', 'node_modules', 'private_repo']
+
       , newFiles = [
         [readme, license, changelog, gitignore],
         ['README.md', 'LICENSE.md', 'CHANGELOG.md', '.gitignore'],
       ]
       , dupFiles = ['index.js', '.travis.yml', 'eslint.sh', 'eslintrc-es5', 'eslintrc-es6', 'gulpfile.js']
-      , srcFiles = _filter(fs.readdirSync(path.join(baseumdlib, src)))
-      , taskFiles = _filter(fs.readdirSync(path.join(baseumdlib, tasks)))
-      , testFiles = _filter(fs.readdirSync(path.join(baseumdlib, test)))
+      , excludeTasks = []
+      , excluSrc = []
+      , exludeDocs = ['_book']
       ;
 
   // Check the folder app is empty:
   process.stdout.write('Checks that the folder app is empty...\n');
-  const files = _filter(fs.readdirSync(baseapp));
-  if (files.length > 1 || (files[0] !== undefined && files[0] !== 'node_modules')) {
+  let files = _filter(fs.readdirSync(baseapp));
+  files = files.filter(file => authFiles.indexOf(file) === -1);
+  if (files.length) {
     process.stdout.write('This folder already contains files and/or folders. Clean it up first! Process aborted...\n');
     process.exit(1);
   }
@@ -376,24 +368,21 @@ function _populate(locopts) {
   // Add and customize package.json:
   _customizeApp(baseumdlib, baseapp, app);
 
-  // Copy Gulp task files:
-  fs.mkdirSync(path.join(baseapp, tasks));
-  for (let i = 0; i < taskFiles.length; i++) {
-    process.stdout.write(`  ${tasks}/${taskFiles[i]}\n`);
-    _copyFile(path.join(baseumdlib, tasks, taskFiles[i]), path.join(baseapp, tasks, taskFiles[i]));
-  }
-  // Customizes config.js:
-  _customizeGulp(baseumdlib, baseapp, app);
+  // Copy Gulp Task files:
+  _copyRecursiveSync(path.join(baseumdlib, tasks), path.join(baseapp, tasks), app, `${baseapp}/`, excludeTasks);
 
-  // Copy src files:
-  fs.mkdirSync(path.join(baseapp, src));
-  _copySrcFiles(path.join(baseumdlib, src), path.join(baseapp, src), srcFiles, app);
+  // Copy Test Files:
+  _copyRecursiveSync(path.join(baseumdlib, test), path.join(baseapp, test), app, `${baseapp}/`);
 
-  // Copy test files:
-  fs.mkdirSync(path.join(baseapp, test));
-  _copySrcFiles(path.join(baseumdlib, test), path.join(baseapp, test), testFiles, app);
+  // Copy Doc Files:
+  _copyRecursiveSync(path.join(baseumdlib, docs), path.join(baseapp, docs), app, `${baseapp}/`, exludeDocs, true);
 
-  // process.stdout.write('Done. Enjoy!\n');
+  // Copy Source Files:
+  _copyRecursiveSync(path.join(baseumdlib, src), path.join(baseapp, src), app, `${baseapp}/`, excluSrc);
+
+  setTimeout(() => {
+    process.stdout.write('Done. Enjoy!\n');
+  }, 1000);
 }
 /* eslint-disable no-underscore-dangle */
 
@@ -404,7 +393,7 @@ if (parsed.help) {
 
 if (parsed.version) {
   // console.log('umdlib version: ' + parsed.version);
-  process.stdout.write(`umdlib version: ${parsed.version}\n`);
+  process.stdout.write(`${boilerlib} version: ${parsed.version}\n`);
   process.exit(0);
 }
 
