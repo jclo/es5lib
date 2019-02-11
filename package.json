@@ -1,6 +1,6 @@
 {
   "name": "es5lib",
-  "version": "0.1.0alpha1",
+  "version": "0.1.0",
   "description": "A template for writing large ES5 Javascript libraries",
   "main": "index.js",
   "bin": {
