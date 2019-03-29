@@ -19,14 +19,6 @@ const config = require('./config')
 
 
 // -- Local constants
-// const { libdir }  = config
-//     , { name }    = config
-//     , { release } = config
-//     , { browserify: { app } }        = config
-//     , { browserify: { debug } }      = config
-//     , { browserify: { exportname } } = config
-//     ;
-
 const destination  = config.libdir
     , lib          = config.libname
     , name         = lib.replace(/\s+/g, '').toLowerCase()

@@ -1,8 +1,8 @@
 {
   "name": "es5lib",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A template for writing large ES5 Javascript libraries",
-  "main": "index.js",
+  "main": "_dist/es5lib.min.js",
   "bin": {
     "es5lib": "./bin/es5lib.js"
   },
@@ -25,7 +25,8 @@
     "url": "https://github.com/jclo/es5lib.git"
   },
   "keywords": [
-    "UMD",
+    "es5",
+    "umd",
     "library",
     "template",
     "boilerplate",
@@ -34,7 +35,11 @@
     "functional-shared instantiation",
     "prototypal instantiation",
     "pseudoclassical instantiation",
-    "pseudoclassical auto instantiation"
+    "pseudoclassical auto instantiation",
+    "browserify",
+    "gulp",
+    "mocha",
+    "istanbul"
   ],
   "author": {
     "name": "jclo",
@@ -49,15 +54,15 @@
   "dependencies": {
     "nopt": "4.0.1",
     "path": "0.12.7",
-    "vuepress": "0.14.8"
+    "vuepress": "0.14.10"
   },
   "devDependencies": {
     "browserify": "16.2.3",
     "chai": "4.2.0",
-    "coveralls": "3.0.2",
+    "coveralls": "3.0.3",
     "cross-env": "5.2.0",
-    "del": "3.0.0",
-    "eslint": "5.13.0",
+    "del": "4.0.0",
+    "eslint": "5.15.3",
     "eslint-config-airbnb-base": "13.1.0",
     "eslint-plugin-import": "2.16.0",
     "gulp": "4.0.0",
@@ -66,17 +71,17 @@
     "gulp-footer": "2.0.2",
     "gulp-header": "2.0.7",
     "gulp-replace": "1.0.0",
-    "gulp-sourcemaps": "2.6.4",
-    "gulp-uglify": "3.0.1",
+    "gulp-sourcemaps": "2.6.5",
+    "gulp-uglify": "3.0.2",
     "gulp-util": "3.0.8",
     "husky": "1.3.1",
-    "mocha": "5.2.0",
-    "nyc": "13.2.0",
+    "mocha": "6.0.2",
+    "nyc": "13.3.0",
     "opener": "1.5.1",
-    "opn": "5.4.0",
+    "opn": "6.0.0",
     "vinyl-buffer": "1.0.1",
     "vinyl-source-stream": "2.0.0",
-    "watchify": "3.11.0"
+    "watchify": "3.11.1"
   },
   "private": false,
   "husky": {
